@@ -11,6 +11,7 @@ import logging
 from rich.logging import RichHandler
 from .kraken2 import run_kraken_reads
 from .sourmash import sourmash_get_refrence
+from .protein import get_protein_variants
 
 def main():
 
@@ -26,7 +27,7 @@ def main():
     parser.add_argument('--fix-ref',help='Force a reference instead of building one')
     parser.add_argument('--consensus-variant-frequency',default=0.01,type=float,help='Minimum frequency of variant to be considered in final reference')
     parser.add_argument('--assemble',action="store_true",help='Try assembly')
-    parser.add_argument('--otus',required=True,help='JSON file with OTU structure')
+    parser.add_argument('--conf',required=True,help='JSON file with conf')
     parser.add_argument('--debug',action="store_true",help='Debug mode')
     parser.set_defaults(func=main)
 
@@ -37,7 +38,8 @@ def main():
             level='DEBUG', format="%(message)s", datefmt="[%X]", handlers=[RichHandler()]
         )
 
-    otu_conf = load_otu_conf(args.otus)
+    conf = json.load(open(args.conf))
+    otu_conf = conf['otus']
 
     tmp = str(uuid4())
     args.data_dir = os.path.expanduser('~')+"/.virus-ngs/"
@@ -50,7 +52,7 @@ def main():
         prefix=args.prefix,
         threads=args.threads,
         kraken_db=args.kraken_db,
-        otus_file=args.otus
+        otu_conf=otu_conf
     )
 
     if args.reference_assignment_method=="sourmash":
@@ -114,16 +116,17 @@ def main():
         min_depth=args.min_dp,
         min_freq=args.consensus_variant_frequency
     )
-    # bam = pp.Bam(
-    #     bam_file=args.prefix+".consensus.bam",
-    #     prefix=args.prefix,
-    #     platform=args.platform.title(),
-    # )
 
-    # report.set("Median depth",bam.get_median_depth(f"{args.prefix}.final.consensus.fasta"))
-    # report.set("Reference_coverage", 100 - get_fasta_missing_content(f"{args.prefix}.final.consensus.fasta"))   
-
-    # report.set("Analysis completed","yes")
+    print(otu_conf)
+    tmp = {d['taxid']:d['coords'] for d in otu_conf if 'coords' in d}
+    
+    get_protein_variants(
+        ref=ref,
+        consensus=f"{args.prefix}.final.consensus.fasta",
+        coords=tmp[top_otu],
+        ref_aa=conf['ref_aa'],
+        outfile=f"{args.prefix}.protein_variants.json"
+    )
 
 
 

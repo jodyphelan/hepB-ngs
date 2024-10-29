@@ -116,7 +116,7 @@ def filter_fastq_by_taxon(kraken_output: str, otus: List[int], parent_otu: int, 
             if entry.name in read_names:
                 fout.write(str(entry) + '\n')
 
-def run_kraken_reads(read1: str, read2: str, prefix: str, threads: int, kraken_db: str, otus_file: str) -> Tuple[int, str,str]:
+def run_kraken_reads(read1: str, read2: str, prefix: str, threads: int, kraken_db: str, otu_conf: str) -> Tuple[int, str,str]:
 
 
 
@@ -125,7 +125,7 @@ def run_kraken_reads(read1: str, read2: str, prefix: str, threads: int, kraken_d
     else:
         run_cmd(f"kraken2 --db {kraken_db} --report {prefix}.kreport.txt --output {prefix}.koutput.txt --threads {threads} {read1}")
 
-    otu_conf = json.load(open(otus_file))
+    
     otus_designation = {int(d['taxid']):d['name'] for d in otu_conf}
     parent_otu = {v:k for k,v in otus_designation.items()}['parent']
     otus_designation.pop(parent_otu)
