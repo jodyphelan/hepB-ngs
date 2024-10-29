@@ -45,6 +45,7 @@ def main():
     args.data_dir = os.path.expanduser('~')+"/.virus-ngs/"
     args.kraken_db = args.kraken_db if os.path.isdir(args.kraken_db) else args.data_dir+"/kraken2"
 
+    get_fastq_stats(read1=args.read1,read2=args.read2)
     
     top_otu, args.read1,args.read2 = run_kraken_reads(
         read1=args.read1,
@@ -54,6 +55,8 @@ def main():
         kraken_db=args.kraken_db,
         otu_conf=otu_conf
     )
+
+    print(report)
 
     if args.reference_assignment_method=="sourmash":
     
@@ -105,6 +108,10 @@ def main():
         run_cmd("minimap2 -ax map-ont -t %(threads)s %(prefix)s.temp.consensus.fasta %(read1)s | samtools sort -@ %(threads)s -o %(prefix)s.consensus.bam" % vars(args))
     run_cmd("samtools index %(prefix)s.consensus.bam" % vars(args))
     
+    report['average_depth'] = get_average_depth(
+        bam=args.prefix+".consensus.bam",
+        ref=f"{args.prefix}.temp.consensus.fasta"
+    )
 
     freebayes_correct(
         ref=f"{args.prefix}.temp.consensus.fasta",
@@ -117,6 +124,7 @@ def main():
         min_freq=args.consensus_variant_frequency
     )
 
+
     print(otu_conf)
     tmp = {d['taxid']:d['coords'] for d in otu_conf if 'coords' in d}
     
@@ -128,6 +136,7 @@ def main():
         outfile=f"{args.prefix}.protein_variants.json"
     )
 
+    json.dump(report,open(f"{args.prefix}.report.json",'w'))
 
 
 

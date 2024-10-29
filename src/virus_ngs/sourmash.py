@@ -1,5 +1,5 @@
 from os.path import expanduser
-from virus_ngs import run_cmd
+from virus_ngs import run_cmd, report
 import os.path
 import csv
 import argparse
@@ -20,6 +20,9 @@ def sourmash_get_refrence(prefix: str, read1: str, read2: str):
     if len(rows)==0:
         quit("Can't find reference\n")
     ref = rows[0]["name"].split(" ")[0]+".fasta"
+    
+    report["reference"] = ref
+    
     ref = f"{refdir}/{ref}"
     return ref
 

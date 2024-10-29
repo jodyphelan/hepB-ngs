@@ -2,12 +2,13 @@ import os
 import subprocess as sp
 from tqdm import tqdm
 import json
-from virus_ngs import run_cmd
+from virus_ngs import run_cmd, report
 from os.path import expanduser
 import pysam
 from typing import List, Tuple
 import argparse
 import logging
+
 
 class TaxonTree:
     """
@@ -135,6 +136,8 @@ def run_kraken_reads(read1: str, read2: str, prefix: str, threads: int, kraken_d
 
     kraken_results = kreport_extract_otus(f"{prefix}.kreport.txt", otus_designation)
     
+    report['kraken'] = kraken_results
+
     major_otu = sorted([(x,kraken_results[x]) for x in otus],key=lambda x:x[1],reverse=True)[0][0]
     logging.info(f"Major OTU: {major_otu}, {otus_designation[major_otu]}")
     filter_fastq_by_taxon(

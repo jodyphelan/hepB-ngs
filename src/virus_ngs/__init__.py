@@ -24,8 +24,8 @@ from tqdm import tqdm
 
 __version__ = "0.0.13"
 
-sero2tax = {1:11053, 2:11060,3:11069,4:11070}
 
+report = {}
 
 def get_strand_direction(consensus,ref):
     """
@@ -41,6 +41,20 @@ def file_line_count(filename):
     Count the number of lines in a file
     """
     return int(sp.check_output(f"wc -l {filename}",shell=True).decode().split()[0])
+
+def get_average_depth(bam:str, ref:str):
+    """
+    Get the average depth of a bam file
+    """
+    tmpfile = str(uuid4())
+    seqs = pysam.FastaFile(ref)
+    run_cmd(f"samtools depth {bam} > {tmpfile}")
+    depth = [0 for _ in range(seqs.lengths[0])]
+    for line in open(tmpfile):
+        chrom,pos,dp = line.strip().split("\t")
+        depth[int(pos)-1] = int(dp)
+    os.remove(tmpfile)
+    return stats.mean(depth)
 
 def plot_lofreq_results(prefix,lofreq_tsv,depth_file):
     # Read lofreq results
@@ -220,10 +234,8 @@ def get_fastq_stats(read1,read2=None):
     
     os.remove(tmpfile)
 
-    return {
-        "Number of reads":numreads,
-        "Average read length": stats.mean(lengths),
-    }
+    report["Number of reads"] = numreads,
+    report["Average read length"] =  stats.mean(lengths)
 
 
 def which(program):
