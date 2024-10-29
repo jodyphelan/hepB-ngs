@@ -1,22 +1,22 @@
-# dengue-ngs
+# hepB-ngs
 
 ## Install 
 
 ```
-wget https://raw.githubusercontent.com/jodyphelan/dengue-ngs/main/conda/linux-env.txt
-conda create --name dengue --file linux-env.txt
-conda activate dengue
+wget https://raw.githubusercontent.com/jodyphelan/hepB-ngs/main/conda/linux-env.txt
+conda create --name hepB --file linux-env.txt
+conda activate hepB
 pip install --force-reinstall  git+https://github.com/jodyphelan/pathogen-profiler.git
-pip install --force-reinstall  git+https://github.com/jodyphelan/dengue-ngs.git
+pip install --force-reinstall  git+https://github.com/jodyphelan/hepB-ngs.git
 ```
 
 ## Set up reference database
 ```
-dengue-download-ref.py
+hepB-download-ref.py
 ```
 
 ## Run
 ```
-dengue-ngs.py -f folder_with_fastq_files
+hepB-ngs.py -f folder_with_fastq_files
 ```
 

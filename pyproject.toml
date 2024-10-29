@@ -1,0 +1,17 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "virus_ngs"
+authors = [{name = "Jody Phelan", email = "jody.phelan@lshtm.ac.uk"}]
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = ["License :: OSI Approved :: MIT License"]
+dynamic = ["version", "description"]
+
+[project.scripts]
+virus-ngs-db = "virus_ngs.db:cli"
+virus-ngs-kraken2 = "virus_ngs.kraken2:cli"
+virus-ngs-sourmash = "virus_ngs.sourmash:cli"
+virus-ngs = "virus_ngs.cli:main"
