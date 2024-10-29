@@ -89,7 +89,8 @@ def filter_fastq_by_taxon(kraken_output: str, otus: List[int], parent_otu: int, 
 
     include = [parent_otu]
     exclude = otus
-    exclude.remove(keep_otu)
+    if keep_otu in exclude:
+        exclude.remove(keep_otu)
 
     taxon_to_keep = set()
     for node in include:
@@ -150,8 +151,8 @@ def run_kraken_reads(read1: str, read2: str, prefix: str, threads: int, kraken_d
             otus, 
             parent_otu, 
             major_otu, 
-            read1, 
-            f"{prefix}.kraken_filtered.1.fq"
+            read2, 
+            f"{prefix}.kraken_filtered.2.fq"
         )
         return major_otu, f"{prefix}.kraken_filtered.1.fq", f"{prefix}.kraken_filtered.2.fq"
 
