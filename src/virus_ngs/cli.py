@@ -47,7 +47,7 @@ def main():
 
     get_fastq_stats(read1=args.read1,read2=args.read2)
     
-    top_otu, args.read1,args.read2 = run_kraken_reads(
+    top_otu, args.filtered_read1,args.filtered_read2 = run_kraken_reads(
         read1=args.read1,
         read2=args.read2,
         prefix=args.prefix,
@@ -62,8 +62,8 @@ def main():
     
         ref = sourmash_get_refrence(
             prefix=args.prefix,
-            read1=args.read1,
-            read2=args.read2
+            read1=args.filtered_read1,
+            read2=args.filtered_read2
         )
     elif args.reference_assignment_method=="genotype":
         ref_seqs = {d['taxid']:d['reference'] for d in otu_conf}
@@ -76,8 +76,8 @@ def main():
 
     pilon_correct(
         ref=ref,
-        r1=args.read1,
-        r2=args.read2,
+        r1=args.filtered_read1,
+        r2=args.filtered_read2,
         platform=args.platform,
         consensus_name=args.prefix+".temp.fasta",
         bam_file=f"{args.prefix}.ref.bam",
@@ -100,12 +100,12 @@ def main():
     if args.platform=="illumina":
         run_cmd("bwa index %(prefix)s.temp.consensus.fasta" % vars(args))
         if args.read2:
-            run_cmd("bwa mem -t %(threads)s -R '@RG\\tID:%(prefix)s\\tSM:%(prefix)s\\tPL:%(platform)s' %(prefix)s.temp.consensus.fasta %(read1)s %(read2)s | samtools sort -@ %(threads)s -o %(prefix)s.consensus.bam" % vars(args))
+            run_cmd("bwa mem -t %(threads)s -R '@RG\\tID:%(prefix)s\\tSM:%(prefix)s\\tPL:%(platform)s' %(prefix)s.temp.consensus.fasta %(filtered_read1)s %(filtered_read2)s | samtools sort -@ %(threads)s -o %(prefix)s.consensus.bam" % vars(args))
         else:
-            run_cmd("bwa mem -t %(threads)s -R '@RG\\tID:%(prefix)s\\tSM:%(prefix)s\\tPL:%(platform)s' %(prefix)s.temp.consensus.fasta %(read1)s | samtools sort -@ %(threads)s -o %(prefix)s.consensus.bam" % vars(args))
+            run_cmd("bwa mem -t %(threads)s -R '@RG\\tID:%(prefix)s\\tSM:%(prefix)s\\tPL:%(platform)s' %(prefix)s.temp.consensus.fasta %(filtered_read1)s | samtools sort -@ %(threads)s -o %(prefix)s.consensus.bam" % vars(args))
         remove_bwa_index(f"{args.prefix}.temp.consensus.fasta")
     else:
-        run_cmd("minimap2 -ax map-ont -t %(threads)s %(prefix)s.temp.consensus.fasta %(read1)s | samtools sort -@ %(threads)s -o %(prefix)s.consensus.bam" % vars(args))
+        run_cmd("minimap2 -ax map-ont -t %(threads)s %(prefix)s.temp.consensus.fasta %(filtered_read1)s | samtools sort -@ %(threads)s -o %(prefix)s.consensus.bam" % vars(args))
     run_cmd("samtools index %(prefix)s.consensus.bam" % vars(args))
     
     report['average_depth'] = get_average_depth(
@@ -138,6 +138,10 @@ def main():
 
     json.dump(report,open(f"{args.prefix}.report.json",'w'))
 
+    if not args.keep_fastq:
+        os.remove(args.filtered_read1)
+        if args.read2:
+            os.remove(args.filtered_read2)
 
 
 
