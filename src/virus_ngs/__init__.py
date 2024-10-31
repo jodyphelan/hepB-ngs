@@ -332,7 +332,7 @@ def mask_fasta(input,output,positions,newchrom=None):
     """
     sys.stderr.write("Masking %s\n" % input)
     fasta = pysam.FastaFile(input)
-    seq = fasta.fetch(fasta.references[0])
+    seq = list(fasta.fetch(fasta.references[0]))
 
     if not newchrom:
         newchrom = list(fasta.fa_dict)[0]
