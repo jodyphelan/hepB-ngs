@@ -29,7 +29,7 @@ def main():
     parser.add_argument('--assemble',action="store_true",help='Try assembly')
     parser.add_argument('--conf',required=True,help='JSON file with conf')
     parser.add_argument('--debug',action="store_true",help='Debug mode')
-    parser.add_argument('--keep-fastq',action="store_true",help='Keep intermediate fastq files')
+    parser.add_argument('--keep-intermediate-files',action="store_true",help='Keep intermediate fastq files')
     parser.set_defaults(func=main)
 
     args = parser.parse_args()
@@ -139,10 +139,13 @@ def main():
 
     json.dump(report,open(f"{args.prefix}.report.json",'w'))
 
-    if not args.keep_fastq:
+    if not args.keep_intermediate_files:
         os.remove(args.filtered_read1)
         if args.read2:
             os.remove(args.filtered_read2)
+        os.remove(f"{args.prefix}.koutput.txt")
+        os.remove(f"{args.prefix}.ref.bam")
+        os.remove(f"{args.prefix}.ref.bam.bai")
 
 
 
