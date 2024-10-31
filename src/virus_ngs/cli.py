@@ -29,6 +29,7 @@ def main():
     parser.add_argument('--assemble',action="store_true",help='Try assembly')
     parser.add_argument('--conf',required=True,help='JSON file with conf')
     parser.add_argument('--debug',action="store_true",help='Debug mode')
+    parser.add_argument('--keep-fastq',action="store_true",help='Keep intermediate fastq files')
     parser.set_defaults(func=main)
 
     args = parser.parse_args()
