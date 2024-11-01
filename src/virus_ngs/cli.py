@@ -30,6 +30,7 @@ def main():
     parser.add_argument('--conf',required=True,help='JSON file with conf')
     parser.add_argument('--debug',action="store_true",help='Debug mode')
     parser.add_argument('--keep-intermediate-files',action="store_true",help='Keep intermediate fastq files')
+    parser.add_argument('--ram',type=int,default=50,help='Maximum RAM for pilon')
     parser.set_defaults(func=main)
 
     args = parser.parse_args()
@@ -83,7 +84,8 @@ def main():
         consensus_name=args.prefix+".temp.fasta",
         bam_file=f"{args.prefix}.ref.bam",
         threads=args.threads,
-        min_depth=args.min_dp
+        min_depth=args.min_dp,
+        max_ram=args.ram
     )
     
     fasta_depth_mask(

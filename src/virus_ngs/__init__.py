@@ -114,7 +114,7 @@ def remove_bwa_index(ref):
     for e in ["amb","ann","bwt","pac","sa"]:
         os.remove(f"{ref}.{e}")
 
-def pilon_correct(ref,r1,r2,consensus_name,platform,bam_file=None,threads=1,min_depth=50,use_iupac=False):
+def pilon_correct(ref,r1,r2,consensus_name,platform,bam_file=None,threads=1,min_depth=50,use_iupac=False,max_ram=50):
     if use_iupac:
         iupac = "--iupac-codes"
     else:
@@ -127,15 +127,15 @@ def pilon_correct(ref,r1,r2,consensus_name,platform,bam_file=None,threads=1,min_
         if r2:
             run_cmd(f"bwa mem -t {threads} {tmp}.ref.fasta {r1} {r2} | samtools sort -@ {threads} -o {tmp}.bam")
             run_cmd(f"samtools index {tmp}.bam")
-            run_cmd(f"pilon -Xmx10g --genome {tmp}.ref.fasta --frags {tmp}.bam --output {tmp}.consensus --mindepth {min_depth} --vcf")
+            run_cmd(f"pilon -Xmx{max_ram}g --genome {tmp}.ref.fasta --frags {tmp}.bam --output {tmp}.consensus --mindepth {min_depth} --vcf")
         else:
             run_cmd(f"bwa mem -t {threads} {tmp}.ref.fasta {r1} | samtools sort -@ {threads} -o {tmp}.bam")
             run_cmd(f"samtools index {tmp}.bam")
-            run_cmd(f"pilon -Xmx10g --genome {tmp}.ref.fasta --unpaired {tmp}.bam --output {tmp}.consensus --mindepth {min_depth} --vcf")
+            run_cmd(f"pilon -Xmx{max_ram}g --genome {tmp}.ref.fasta --unpaired {tmp}.bam --output {tmp}.consensus --mindepth {min_depth} --vcf")
     elif platform.lower()=="nanopore":
         run_cmd(f"minimap2 -ax map-ont {ref} {r1} | samtools sort -@ {threads} -o {tmp}.bam")
         run_cmd(f"samtools index {tmp}.bam")
-        run_cmd(f"pilon -Xmx10g --genome {ref} --nanopore {tmp}.bam --output {tmp}.consensus --mindepth {min_depth} --vcf")
+        run_cmd(f"pilon -Xmx{max_ram}g --genome {ref} --nanopore {tmp}.bam --output {tmp}.consensus --mindepth {min_depth} --vcf")
     
     run_cmd(f"bcftools view -v snps -i 'FILTER=\"PASS\" & QUAL>0'  -c 2 {tmp}.consensus.vcf -Oz -o {tmp}.variants.vcf.gz")
     run_cmd(f"tabix {tmp}.variants.vcf.gz")
