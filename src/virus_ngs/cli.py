@@ -58,6 +58,14 @@ def main():
         otu_conf=otu_conf
     )
 
+    get_fastq_stats(read1=args.filtered_read1,read2=args.filtered_read2)
+
+    if report['Number of reads']>500000:
+        run_cmd(f"seqtk sample -n 500000 {args.filtered_read1}  > {args.filtered_read1}.tmp")
+        run_cmd(f"mv {args.filtered_read1}.tmp {args.filtered_read1}")
+        if args.filtered_read2:
+            run_cmd(f"seqtk sample -n 500000 {args.filtered_read2}  > {args.filtered_read2}.tmp")
+            run_cmd(f"mv {args.filtered_read2}.tmp {args.filtered_read2}")
     print(report)
 
     if args.reference_assignment_method=="sourmash":
