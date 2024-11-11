@@ -60,6 +60,7 @@ def main():
 
     get_fastq_stats(read1=args.filtered_read1,read2=args.filtered_read2)
 
+    logging.debug(report)
     if report['Number of reads']>500000:
         run_cmd(f"seqtk sample -n 500000 {args.filtered_read1}  > {args.filtered_read1}.tmp")
         run_cmd(f"mv {args.filtered_read1}.tmp {args.filtered_read1}")
