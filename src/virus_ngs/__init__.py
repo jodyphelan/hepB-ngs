@@ -233,8 +233,7 @@ def get_fastq_stats(read1,read2=None):
         lengths.append(float(row['avg_len']))
     
     os.remove(tmpfile)
-    logging.debug(numreads)
-    report["Number of reads"] = numreads,
+    report["Number of reads"] = numreads
     report["Average read length"] =  stats.mean(lengths)
 
 
