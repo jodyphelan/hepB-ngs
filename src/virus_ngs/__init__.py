@@ -357,7 +357,7 @@ def fasta_depth_mask(input,output,bam_file,depth_cutoff=50,newchrom=None):
     """
     Mask the fasta file with - based on the depth of the bam file.
     """
-    logging.debug("Masking %s" % input)
+    logging.debug("Masking all positions in %s under %sx" % (input,depth_cutoff))
     positions = get_missing_positions(bam_file,depth_cutoff=depth_cutoff)
     mask_fasta(input,output,positions,newchrom=newchrom)
 
